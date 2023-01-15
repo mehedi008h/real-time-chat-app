@@ -1,5 +1,4 @@
 import {
-    Avatar,
     Box,
     Button,
     Center,
@@ -17,8 +16,13 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import React, { FC, useState } from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
+import { Session } from "next-auth";
+import { signIn } from "next-auth/react";
 
-interface AuthProps {}
+interface AuthProps {
+    session: Session | null;
+    reloadSession: () => void;
+}
 
 interface Values {
     email: string;
@@ -35,7 +39,7 @@ const schema = Yup.object().shape({
         .min(8, "Password must be at least 8 characters"),
 });
 
-const Auth: FC<AuthProps> = (props) => {
+const Auth: FC<AuthProps> = ({ session, reloadSession }) => {
     // state
     const [show, setShow] = useState(false);
     const [signup, setSignup] = useState(false);
@@ -63,6 +67,7 @@ const Auth: FC<AuthProps> = (props) => {
                         width="100&"
                     >
                         <Button
+                            onClick={() => signIn("google")}
                             leftIcon={<FcGoogle size={20} />}
                             bg="blackAlpha.200"
                             width="300px"
