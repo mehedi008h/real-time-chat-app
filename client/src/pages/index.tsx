@@ -1,4 +1,5 @@
 import Auth from "@/components/Auth/Auth";
+import Chat from "@/components/Chat/Chat";
 import { Box, Text } from "@chakra-ui/react";
 import { NextPageContext } from "next";
 import { getSession, useSession } from "next-auth/react";
@@ -13,7 +14,11 @@ export default function Home() {
     };
     return (
         <Box>
-            <Auth session={session} reloadSession={reloadSession} />
+            {session?.user.username ? (
+                <Chat session={session} />
+            ) : (
+                <Auth session={session} reloadSession={reloadSession} />
+            )}
         </Box>
     );
 }
