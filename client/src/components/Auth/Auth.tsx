@@ -18,6 +18,10 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import { Session } from "next-auth";
 import { signIn } from "next-auth/react";
+import { useMutation } from "@apollo/client";
+import UserOperations from "../../graphql/operations/user";
+import { CreateUsernameData, CreateUsernameVariables } from "@/utils/types";
+import { toast } from "react-hot-toast";
 
 interface AuthProps {
     session: Session | null;
@@ -48,6 +52,36 @@ const Auth: FC<AuthProps> = ({ session, reloadSession }) => {
 
     // show password
     const handleClick = () => setShow(!show);
+    const [createUsername, { loading, error }] = useMutation<
+        CreateUsernameData,
+        CreateUsernameVariables
+    >(UserOperations.Mutations.createUsername);
+
+    const onSubmit = async () => {
+        try {
+            const { data } = await createUsername({ variables: { username } });
+
+            if (!data?.createUsername) {
+                throw new Error();
+            }
+
+            if (data.createUsername.error) {
+                const {
+                    createUsername: { error },
+                } = data;
+
+                throw new Error(error);
+            }
+
+            toast.success("Username successfull created ✔");
+
+            // relode session to obtain new username
+            reloadSession();
+        } catch (error: any) {
+            toast.error(error?.message);
+            console.log("On Submit Error :", error);
+        }
+    };
     return (
         <Flex height="100vh" width="100%" justify="space-between">
             <Box
@@ -76,7 +110,6 @@ const Auth: FC<AuthProps> = ({ session, reloadSession }) => {
                                 }}
                                 _hover={{ border: "1px" }}
                                 _focus={{ border: "1px" }}
-                                name="name"
                                 required
                                 value={username}
                                 onChange={(
@@ -84,11 +117,12 @@ const Auth: FC<AuthProps> = ({ session, reloadSession }) => {
                                 ) => setUsername(event.target.value)}
                             />
                             <Button
-                                type="submit"
                                 bg="blue.600"
                                 width="300px"
                                 color="white"
                                 _hover={{ bg: "blue.500" }}
+                                onClick={onSubmit}
+                                isLoading={loading}
                             >
                                 Create
                             </Button>

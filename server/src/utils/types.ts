@@ -25,3 +25,8 @@ export interface User {
     email: string;
     name: string;
 }
+
+export interface CreateUsernameResponse {
+    success?: boolean;
+    error?: string;
+}
