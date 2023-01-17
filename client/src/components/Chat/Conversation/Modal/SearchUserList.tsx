@@ -4,9 +4,13 @@ import React, { FC } from "react";
 
 interface ISearchUserListProps {
     users: Array<SearchUser>;
+    addParticipant: (user: SearchUser) => void;
 }
 
-const SearchUserList: FC<ISearchUserListProps> = ({ users }) => {
+const SearchUserList: FC<ISearchUserListProps> = ({
+    users,
+    addParticipant,
+}) => {
     return (
         <Box>
             {users.length === 0 ? (
@@ -43,6 +47,7 @@ const SearchUserList: FC<ISearchUserListProps> = ({ users }) => {
                                 <Button
                                     bg="brand.100"
                                     _hover={{ bg: "brand.100" }}
+                                    onClick={() => addParticipant(user)}
                                 >
                                     Select
                                 </Button>
