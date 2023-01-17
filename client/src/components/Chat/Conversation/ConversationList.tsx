@@ -1,16 +1,23 @@
 import { Avatar, Box, Flex, Text } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/router";
 import React, { FC, useState } from "react";
 import { AiOutlineLogout } from "react-icons/ai";
 import { BiSearchAlt2 } from "react-icons/bi";
+import { ConversationPopulated } from "../../../../../server/src/utils/types";
+import ConversationItem from "./ConversationItem";
 import SearchModal from "./Modal/SearchModal";
 
 interface IConversationListProps {
     session: Session;
+    conversations: Array<ConversationPopulated>;
 }
 
-const ConversationList: FC<IConversationListProps> = ({ session }) => {
+const ConversationList: FC<IConversationListProps> = ({
+    session,
+    conversations,
+}) => {
     // modal state
     const [isOpen, setIsOpen] = useState(false);
 
@@ -18,6 +25,16 @@ const ConversationList: FC<IConversationListProps> = ({ session }) => {
 
     const onOpen = () => setIsOpen(true);
     const onClose = () => setIsOpen(false);
+
+    const router = useRouter();
+    const {
+        user: { id: userId },
+    } = session;
+
+    const sortedConversations = [...conversations].sort(
+        (a, b) => b.updatedAt.valueOf() - a.updatedAt.valueOf()
+    );
+
     return (
         <Box position="relative" height="100%" px={4}>
             {/* heading  */}
@@ -36,6 +53,16 @@ const ConversationList: FC<IConversationListProps> = ({ session }) => {
             <SearchModal isOpen={isOpen} onClose={onClose} session={session} />
 
             {/* conversation item  */}
+
+            <Box my={4}>
+                {sortedConversations.map((conversation) => (
+                    <ConversationItem
+                        key={conversation.id}
+                        userId={userId}
+                        conversation={conversation}
+                    />
+                ))}
+            </Box>
 
             {/* logout  */}
             {user.name && (
