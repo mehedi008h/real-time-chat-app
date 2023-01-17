@@ -2,6 +2,7 @@ import { gql } from "graphql-tag";
 
 const userTypeDefs = gql`
     scalar Date
+
     type User {
         id: String
         username: String
@@ -10,9 +11,11 @@ const userTypeDefs = gql`
         emailVerified: Boolean
         image: String
     }
+
     type SearchedUser {
         id: String
         username: String
+        name: String
     }
 
     type Query {

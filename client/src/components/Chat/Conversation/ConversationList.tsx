@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, Flex, Text } from "@chakra-ui/react";
+import { Avatar, Box, Flex, Text } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 import React, { FC, useState } from "react";
@@ -32,7 +32,10 @@ const ConversationList: FC<IConversationListProps> = ({ session }) => {
                     onClick={onOpen}
                 />
             </Flex>
-            <SearchModal isOpen={isOpen} onClose={onClose} />
+            {/* modal  */}
+            <SearchModal isOpen={isOpen} onClose={onClose} session={session} />
+
+            {/* conversation item  */}
 
             {/* logout  */}
             {user.name && (
@@ -57,6 +60,7 @@ const ConversationList: FC<IConversationListProps> = ({ session }) => {
                             color="white"
                             size={25}
                             onClick={() => signOut()}
+                            cursor="pointer"
                         />
                     </Flex>
                 </Box>
