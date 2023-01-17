@@ -12,7 +12,7 @@ const Chat: FC<IChatProps> = ({ session }) => {
     return (
         <Flex height="100vh" bg="blackAlpha.900">
             <ConversationWrapper session={session} />
-            <FeedWrapper />
+            <FeedWrapper session={session} />
         </Flex>
     );
 };

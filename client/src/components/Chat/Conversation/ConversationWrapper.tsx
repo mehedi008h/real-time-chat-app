@@ -24,7 +24,7 @@ const ConversationWrapper: FC<IConversationWrapperProps> = ({ session }) => {
     return (
         <Box
             display="flex"
-            width={{ base: "100%", md: "400px" }}
+            width={{ base: "100%", md: "450px" }}
             flexDirection="column"
             bg="blackAlpha.900"
             gap={4}
