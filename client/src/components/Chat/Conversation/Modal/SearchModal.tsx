@@ -1,5 +1,11 @@
-import { SearchUser, SearchUserData, SearchUserInput } from "@/utils/types";
-import { useLazyQuery } from "@apollo/client";
+import {
+    CreateConversationData,
+    CreateConversationInput,
+    SearchUser,
+    SearchUserData,
+    SearchUserInput,
+} from "@/utils/types";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import {
     Button,
     Input,
@@ -14,8 +20,12 @@ import {
 import { Session } from "next-auth";
 import React, { FC, FormEvent, useState, Fragment } from "react";
 import UserOperations from "../../../../graphql/operations/user";
+import ConversationOperations from "../../../../graphql/operations/conversation";
 import Participants from "./Participants";
 import SearchUserList from "./SearchUserList";
+import { useRouter } from "next/router";
+import { toast } from "react-hot-toast";
+import { date } from "yup/lib/locale";
 
 interface ISearchModalProps {
     isOpen: boolean;
@@ -28,11 +38,56 @@ const SearchModal: FC<ISearchModalProps> = ({ isOpen, onClose, session }) => {
     const [username, setUsername] = useState("");
     const [participants, setParticipants] = useState<Array<SearchUser>>([]);
 
+    const router = useRouter();
+
+    const {
+        user: { id: userId },
+    } = session;
+    // search query
     const [searchUsers, { data, error, loading }] = useLazyQuery<
         SearchUserData,
         SearchUserInput
     >(UserOperations.Queries.searchUsers);
 
+    // create conversation mutation
+    const [createConversation, { loading: createConversationLoading }] =
+        useMutation<CreateConversationData, CreateConversationInput>(
+            ConversationOperations.Mutations.createConversation
+        );
+
+    // create conversation function
+    const onCreateConversation = async () => {
+        const participantIds = [userId, ...participants.map((p) => p.id)];
+
+        try {
+            // create conversation mutation
+            const { data } = await createConversation({
+                variables: {
+                    participantIds,
+                },
+            });
+
+            if (!data?.createConversation) {
+                throw new Error("Failed to create conversation!");
+            }
+
+            const {
+                createConversation: { conversationId },
+            } = data;
+
+            router.push({ query: { conversationId } });
+
+            // cleare state and close modal
+            setParticipants([]);
+            setUsername("");
+            onClose();
+        } catch (error: any) {
+            console.log("On create conversation error!", error);
+            toast.error(error?.message);
+        }
+    };
+
+    // search user function
     const onSearch = async (e: FormEvent) => {
         e.preventDefault();
 
@@ -90,10 +145,12 @@ const SearchModal: FC<ISearchModalProps> = ({ isOpen, onClose, session }) => {
                                 removeParticipant={removeParticipant}
                             />
                             <Button
-                                bg="brand.100"
+                                bg="green"
                                 width="100%"
                                 mt={6}
-                                _hover={{ bg: "brand.100" }}
+                                _hover={{ bg: "green" }}
+                                isLoading={createConversationLoading}
+                                onClick={onCreateConversation}
                             >
                                 Create Conversation
                             </Button>
