@@ -1,6 +1,6 @@
 import { formatUsernames } from "@/utils/functions";
 import { Avatar, Box, Flex, Stack, Text } from "@chakra-ui/react";
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 import { formatRelative } from "date-fns";
 import enUS from "date-fns/locale/en-US";
 import { ConversationPopulated } from "../../../../../server/src/utils/types";
@@ -8,6 +8,7 @@ import { ConversationPopulated } from "../../../../../server/src/utils/types";
 interface IConversationItemProps {
     userId: string;
     conversation: ConversationPopulated;
+    onClick: () => void;
 }
 
 const formatRelativeLocale = {
@@ -20,7 +21,18 @@ const formatRelativeLocale = {
 const ConversationItem: FC<IConversationItemProps> = ({
     userId,
     conversation,
+    onClick,
 }) => {
+    const [menuOpen, setMenuOpen] = useState(false);
+
+    const handleClick = (event: React.MouseEvent) => {
+        if (event.type === "click") {
+            onClick();
+        } else if (event.type === "contextmenu") {
+            event.preventDefault();
+            setMenuOpen(true);
+        }
+    };
     return (
         <Stack
             direction="row"
@@ -33,6 +45,7 @@ const ConversationItem: FC<IConversationItemProps> = ({
             position="relative"
             borderBottom="1px"
             borderColor="whiteAlpha.200"
+            onClick={handleClick}
         >
             <Avatar name={formatUsernames(conversation.participants, userId)} />
             <Flex justify="space-between" width="80%" height="100%">

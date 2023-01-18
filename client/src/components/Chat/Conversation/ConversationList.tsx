@@ -12,11 +12,16 @@ import SearchModal from "./Modal/SearchModal";
 interface IConversationListProps {
     session: Session;
     conversations: Array<ConversationPopulated>;
+    onViewConversation: (
+        conversationId: string,
+        hasSeenLatestMessage: boolean | undefined
+    ) => void;
 }
 
 const ConversationList: FC<IConversationListProps> = ({
     session,
     conversations,
+    onViewConversation,
 }) => {
     // modal state
     const [isOpen, setIsOpen] = useState(false);
@@ -55,13 +60,25 @@ const ConversationList: FC<IConversationListProps> = ({
             {/* conversation item  */}
 
             <Box my={4}>
-                {sortedConversations.map((conversation) => (
-                    <ConversationItem
-                        key={conversation.id}
-                        userId={userId}
-                        conversation={conversation}
-                    />
-                ))}
+                {sortedConversations.map((conversation) => {
+                    const participant = conversation.participants.find(
+                        (p) => p.user.id === userId
+                    );
+
+                    return (
+                        <ConversationItem
+                            key={conversation.id}
+                            userId={userId}
+                            conversation={conversation}
+                            onClick={() =>
+                                onViewConversation(
+                                    conversation.id,
+                                    participant?.hasSeenLatestMessage
+                                )
+                            }
+                        />
+                    );
+                })}
             </Box>
 
             {/* logout  */}

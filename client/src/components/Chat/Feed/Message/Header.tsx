@@ -55,7 +55,7 @@ const MessageHeader: FC<IMessageHeaderProps> = ({ userId, conversationId }) => {
                     })
                 }
             >
-                Back
+                {"<"}
             </Button>
             {loading && <Text> Loading</Text>}
             {!conversation && !loading && <Text>Conversation Not Found</Text>}
