@@ -12,11 +12,23 @@ import { PrismaClient } from "@prisma/client";
 import { PubSub } from "graphql-subscriptions";
 import resolvers from "./graphql/resolvers";
 import typeDefs from "./graphql/typeDefs";
-import { GraphQLContext, Session } from "./utils/types";
+import { GraphQLContext, Session, SubscriptionContext } from "./utils/types";
+import { WebSocketServer } from "ws";
+import { useServer } from "graphql-ws/lib/use/ws";
+
 async function startApolloServer() {
     dotenv.config();
     const app = express();
     const httpServer = http.createServer(app);
+
+    // Creating the WebSocket server
+    const wsServer = new WebSocketServer({
+        // This is the `httpServer` we created in a previous step.
+        server: httpServer,
+        // Pass a different path here if app.use
+        // serves expressMiddleware at a different path
+        path: "/graphql/subscriptions",
+    });
 
     const schema = makeExecutableSchema({
         typeDefs,
@@ -29,6 +41,23 @@ async function startApolloServer() {
     const prisma = new PrismaClient();
     const pubsub = new PubSub();
 
+    // Hand in the schema we just created and have the
+    // WebSocketServer start listening.
+    const serverCleanup = useServer(
+        {
+            schema,
+            context: async (ctx: SubscriptionContext) => {
+                if (ctx.connectionParams && ctx.connectionParams.session) {
+                    console.log("SERVER CONTEXT", ctx.connectionParams);
+                    const { session } = ctx.connectionParams;
+                    return { session, prisma, pubsub };
+                }
+                return { session: null, prisma, pubsub };
+            },
+        },
+        wsServer
+    );
+
     const server = new ApolloServer({
         schema,
         csrfPrevention: true,
@@ -37,15 +66,15 @@ async function startApolloServer() {
             ApolloServerPluginDrainHttpServer({ httpServer }),
 
             // Proper shutdown for the WebSocket server.
-            // {
-            //     async serverWillStart() {
-            //         return {
-            //             async drainServer() {
-            //                 await serverCleanup.dispose();
-            //             },
-            //         };
-            //     },
-            // },
+            {
+                async serverWillStart() {
+                    return {
+                        async drainServer() {
+                            await serverCleanup.dispose();
+                        },
+                    };
+                },
+            },
         ],
     });
 

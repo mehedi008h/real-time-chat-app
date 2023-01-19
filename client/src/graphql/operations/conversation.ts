@@ -40,5 +40,22 @@ export default {
             }
         `,
     },
-    Subscrriptions: {},
+    Subscrriptions: {
+        conversationCreated: gql`
+          subscription ConversationCreated {
+            conversationCreated {
+              ${ConversationFeild}
+            }
+          }
+        `,
+        conversationUpdated: gql`
+        subscription ConversationUpdated {
+          conversationUpdated {
+            conversation {
+              ${ConversationFeild}
+            }
+          }
+        }
+      `,
+    },
 };

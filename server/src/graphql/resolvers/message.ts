@@ -1,12 +1,14 @@
 import {
     GraphQLContext,
     MessagePopulated,
+    MessageSentSubscriptionPayload,
     SendMessageArguments,
 } from "../../utils/types";
 import { GraphQLError } from "graphql";
 import { Prisma } from "@prisma/client";
 import { conversationPopulated } from "./conversations";
 import { userIsConversationParticipant } from "../../utils/functions";
+import { withFilter } from "graphql-subscriptions";
 
 const resolver = {
     Query: {
@@ -108,41 +110,68 @@ const resolver = {
                 }
 
                 // update conversation entity
-                // const conversation = await prisma.conversation.update({
-                //     where: {
-                //         id: conversationId,
-                //     },
-                //     data: {
-                //         latestMessageId: newMessage.id,
-                //         participants: {
-                //             update: {
-                //                 where: {
-                //                     id: participant.id,
-                //                 },
-                //                 data: {
-                //                     hasSeenLatestMessage: true,
-                //                 },
-                //             },
-                //             updateMany: {
-                //                 where: {
-                //                     NOT: {
-                //                         userId,
-                //                     },
-                //                 },
-                //                 data: {
-                //                     hasSeenLatestMessage: false,
-                //                 },
-                //             },
-                //         },
-                //     },
-                //     include: conversationPopulated,
-                // });
+                const conversation = await prisma.conversation.update({
+                    where: {
+                        id: conversationId,
+                    },
+                    data: {
+                        latestMessageId: newMessage.id,
+                        participants: {
+                            update: {
+                                where: {
+                                    id: participant.id,
+                                },
+                                data: {
+                                    hasSeenLatestMessage: true,
+                                },
+                            },
+                            updateMany: {
+                                where: {
+                                    NOT: {
+                                        userId,
+                                    },
+                                },
+                                data: {
+                                    hasSeenLatestMessage: false,
+                                },
+                            },
+                        },
+                    },
+                    include: conversationPopulated,
+                });
+                pubsub.publish("MESSAGE_SENT", { messageSent: newMessage });
+                pubsub.publish("CONVERSATION_UPDATED", {
+                    conversationUpdated: {
+                        conversation,
+                    },
+                });
             } catch (error) {
                 console.log("send Message error", error);
                 throw new GraphQLError("Error sending message!");
             }
 
             return true;
+        },
+    },
+
+    Subscription: {
+        messageSent: {
+            subscribe: withFilter(
+                (_: any, __: any, context: GraphQLContext) => {
+                    const { pubsub } = context;
+                    return pubsub.asyncIterator(["MESSAGE_SENT"]);
+                },
+                (
+                    payload: MessageSentSubscriptionPayload,
+                    args: { conversationId: string },
+                    context: GraphQLContext
+                ) => {
+                    return (
+                        payload.messageSent.conversationId ===
+                        args.conversationId
+                    );
+                }
+            ),
         },
     },
 };

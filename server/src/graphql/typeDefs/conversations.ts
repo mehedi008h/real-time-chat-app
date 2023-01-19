@@ -11,6 +11,10 @@ const conversationTypeDefs = gql`
         conversationId: String
     }
 
+    type ConversationUpdatedSubscriptionPayload {
+        conversation: Conversation
+    }
+
     type Message {
         id: String
         sender: User
@@ -33,6 +37,14 @@ const conversationTypeDefs = gql`
 
     type Query {
         conversations: [Conversation]
+    }
+
+    type Subscription {
+        conversationCreated: Conversation
+    }
+
+    type Subscription {
+        conversationUpdated: ConversationUpdatedSubscriptionPayload
     }
 `;
 
