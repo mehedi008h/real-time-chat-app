@@ -38,6 +38,8 @@ const SearchModal: FC<ISearchModalProps> = ({ isOpen, onClose, session }) => {
     const [username, setUsername] = useState("");
     const [participants, setParticipants] = useState<Array<SearchUser>>([]);
 
+    console.log("Parti", participants);
+
     const router = useRouter();
 
     const {

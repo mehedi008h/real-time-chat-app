@@ -38,7 +38,7 @@ const FeedWrapper: FC<IFeedWrapperProps> = ({ session }) => {
                             conversationId={conversationId}
                         />
                         <Messages
-                            userId={userId}
+                            userId={session.user.id}
                             conversationId={conversationId}
                         />
                     </Flex>

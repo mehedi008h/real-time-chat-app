@@ -43,40 +43,40 @@ const MessageInput: FC<IMessageInputProps> = ({ session, conversationId }) => {
                 variables: {
                     ...newMessage,
                 },
-                // optimisticResponse: {
-                //     sendMessage: true,
-                // },
-                // update: (caches) => {
-                //     const existing = caches.readQuery<MessagesData>({
-                //         query: MessageOperation.Query.messages,
-                //         variables: { conversationId },
-                //     }) as MessagesData;
+                optimisticResponse: {
+                    sendMessage: true,
+                },
+                update: (caches) => {
+                    const existing = caches.readQuery<MessagesData>({
+                        query: MessageOperation.Query.messages,
+                        variables: { conversationId },
+                    }) as MessagesData;
 
-                //     caches.writeQuery<MessagesData, { conversationId: string }>(
-                //         {
-                //             query: MessageOperation.Query.messages,
-                //             variables: { conversationId },
-                //             data: {
-                //                 ...existing,
-                //                 messages: [
-                //                     {
-                //                         id: messageId,
-                //                         body: messageBody,
-                //                         senderId: session.user.id,
-                //                         conversationId,
-                //                         sender: {
-                //                             id: session.user.id,
-                //                             username: session.user.username,
-                //                         },
-                //                         createdAt: new Date(Date.now()),
-                //                         updatedAt: new Date(Date.now()),
-                //                     },
-                //                     ...existing.messages,
-                //                 ],
-                //             },
-                //         }
-                //     );
-                // },
+                    caches.writeQuery<MessagesData, { conversationId: string }>(
+                        {
+                            query: MessageOperation.Query.messages,
+                            variables: { conversationId },
+                            data: {
+                                ...existing,
+                                messages: [
+                                    {
+                                        id: messageId,
+                                        body: messageBody,
+                                        senderId: session.user.id,
+                                        conversationId,
+                                        sender: {
+                                            id: session.user.id,
+                                            username: session.user.username,
+                                        },
+                                        createdAt: new Date(Date.now()),
+                                        updatedAt: new Date(Date.now()),
+                                    },
+                                    ...existing.messages,
+                                ],
+                            },
+                        }
+                    );
+                },
             });
 
             if (!data?.sendMessage || errors) {

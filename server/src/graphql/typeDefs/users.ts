@@ -15,7 +15,6 @@ const userTypeDefs = gql`
     type SearchedUser {
         id: String
         username: String
-        name: String
     }
 
     type Query {

@@ -1,6 +1,7 @@
 import { formatUsernames } from "@/utils/functions";
 import { Avatar, Box, Flex, Stack, Text } from "@chakra-ui/react";
 import React, { FC, useState } from "react";
+import { GoPrimitiveDot } from "react-icons/go";
 import { formatRelative } from "date-fns";
 import enUS from "date-fns/locale/en-US";
 import { ConversationPopulated } from "../../../../../server/src/utils/types";
@@ -9,6 +10,8 @@ interface IConversationItemProps {
     userId: string;
     conversation: ConversationPopulated;
     onClick: () => void;
+    isSelected: boolean;
+    hasSeenLatestMessage: boolean | undefined;
 }
 
 const formatRelativeLocale = {
@@ -22,6 +25,8 @@ const ConversationItem: FC<IConversationItemProps> = ({
     userId,
     conversation,
     onClick,
+    isSelected,
+    hasSeenLatestMessage,
 }) => {
     const [menuOpen, setMenuOpen] = useState(false);
 
@@ -47,6 +52,11 @@ const ConversationItem: FC<IConversationItemProps> = ({
             borderColor="whiteAlpha.200"
             onClick={handleClick}
         >
+            <Flex position="absolute" left="-6px">
+                {hasSeenLatestMessage === false && (
+                    <GoPrimitiveDot fontSize={18} color="#6B46C1" />
+                )}
+            </Flex>
             <Avatar name={formatUsernames(conversation.participants, userId)} />
             <Flex justify="space-between" width="80%" height="100%">
                 <Flex direction="column" width="70%" height="100%">

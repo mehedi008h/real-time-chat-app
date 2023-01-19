@@ -8,7 +8,6 @@ export default {
                 searchUsers(username: $username) {
                     id
                     username
-                    name
                 }
             }
         `,

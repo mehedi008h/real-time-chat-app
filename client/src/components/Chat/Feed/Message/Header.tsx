@@ -1,6 +1,6 @@
 import { formatUsernames } from "@/utils/functions";
 import { ConversationsData } from "@/utils/types";
-import { useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import {
     Button,
     Flex,
@@ -14,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { FC, useState } from "react";
+import { toast } from "react-hot-toast";
 import { CgMenuGridO } from "react-icons/cg";
 import { IoAddCircleOutline } from "react-icons/io5";
 import ConversationOperations from "../../../../graphql/operations/conversation";
@@ -25,17 +26,51 @@ interface IMessageHeaderProps {
 
 const MessageHeader: FC<IMessageHeaderProps> = ({ userId, conversationId }) => {
     const router = useRouter();
+
     const { data, loading } = useQuery<ConversationsData, null>(
         ConversationOperations.Queries.conversations
     );
+
+    const [deleteConversation] = useMutation<{
+        deleteConversation: boolean;
+        conversationId: string;
+    }>(ConversationOperations.Mutations.deleteConversation);
 
     const conversation = data?.conversations.find(
         (conversation) => conversation.id === conversationId
     );
 
-    if (data?.conversations && !loading && !conversation) {
-        router.replace(process.env.NEXT_PUBLIC_BASE_URL as string);
-    }
+    // if (data?.conversations && !loading && !conversation) {
+    //     router.replace(process.env.NEXT_PUBLIC_BASE_URL as string);
+    // }
+
+    const onDeleteConversation = async (conversationId: string) => {
+        try {
+            toast.promise(
+                deleteConversation({
+                    variables: {
+                        conversationId,
+                    },
+                    update: () => {
+                        router.replace(
+                            typeof process.env.NEXT_PUBLIC_BASE_URL === "string"
+                                ? process.env.NEXT_PUBLIC_BASE_URL
+                                : ""
+                        );
+                    },
+                }),
+                {
+                    loading: "Deleting conversation",
+                    success: "Conversation deleted",
+                    error: "Failed to delete conversation",
+                }
+            );
+
+            router.push("/");
+        } catch (error) {
+            console.log("onDeleteConversation error", error);
+        }
+    };
 
     return (
         <Stack
@@ -82,9 +117,11 @@ const MessageHeader: FC<IMessageHeaderProps> = ({ userId, conversationId }) => {
                         <MenuList>
                             <MenuItem
                                 icon={<IoAddCircleOutline />}
-                                command="⌘T"
+                                onClick={() => {
+                                    onDeleteConversation(conversation.id);
+                                }}
                             >
-                                New Tab
+                                Delete Conversation
                             </MenuItem>
                         </MenuList>
                     </Menu>

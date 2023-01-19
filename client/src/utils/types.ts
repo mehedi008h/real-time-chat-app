@@ -2,6 +2,7 @@ import {
     ConversationPopulated,
     MessagePopulated,
 } from "../../../server/src/utils/types";
+
 export interface CreateUsernameVariables {
     username: string;
 }
@@ -24,7 +25,6 @@ export interface SearchUserData {
 export interface SearchUser {
     id: string;
     username: string;
-    name: string;
 }
 
 /**
@@ -43,6 +43,26 @@ export interface ConversationsData {
 
 export interface CreateConversationInput {
     participantIds: Array<string>;
+}
+
+export interface ConversationCreatedSubscriptionData {
+    subscriptionData: {
+        data: {
+            conversationCreated: ConversationPopulated;
+        };
+    };
+}
+
+export interface ConversationUpdatedData {
+    conversationUpdated: {
+        conversation: ConversationPopulated;
+    };
+}
+
+export interface ConversationDeletedData {
+    conversationDeleted: {
+        id: string;
+    };
 }
 
 /**

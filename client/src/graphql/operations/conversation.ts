@@ -1,5 +1,6 @@
 /* eslint-disable import/no-anonymous-default-export */
 import { gql } from "@apollo/client";
+import { MessageFields } from "./message";
 
 const ConversationFeild = `
     id
@@ -11,13 +12,7 @@ const ConversationFeild = `
         hasSeenLatestMessage
     }
     latestMessage {
-        id
-        sender {
-            id
-            username
-        }
-        body
-        createdAt
+        ${MessageFields}
     }
     updatedAt
 `;
@@ -39,8 +34,24 @@ export default {
                 }
             }
         `,
+        deleteConversation: gql`
+            mutation DeleteConversation($conversationId: String!) {
+                deleteConversation(conversationId: $conversationId)
+            }
+        `,
+        markConversationAsRead: gql`
+            mutation MarkConversationAsRead(
+                $userId: String!
+                $conversationId: String!
+            ) {
+                markConversationAsRead(
+                    userId: $userId
+                    conversationId: $conversationId
+                )
+            }
+        `,
     },
-    Subscrriptions: {
+    Subscriptions: {
         conversationCreated: gql`
           subscription ConversationCreated {
             conversationCreated {
@@ -49,13 +60,20 @@ export default {
           }
         `,
         conversationUpdated: gql`
-        subscription ConversationUpdated {
-          conversationUpdated {
-            conversation {
-              ${ConversationFeild}
+            subscription ConversationUpdated {
+                conversationUpdated {
+                    conversation {
+                    ${ConversationFeild}
+                    }
+                }
             }
-          }
-        }
       `,
+        conversationDeleted: gql`
+            subscription ConversationDeleted {
+                conversationDeleted {
+                    id
+                }
+            }
+        `,
     },
 };

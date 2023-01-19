@@ -6,7 +6,7 @@ import {
 } from "@/utils/types";
 import { useQuery } from "@apollo/client";
 import { Flex, Stack } from "@chakra-ui/react";
-import React, { FC, useEffect } from "react";
+import React, { FC, useEffect, useRef } from "react";
 import { toast } from "react-hot-toast";
 import MessageOperation from "../../../../graphql/operations/message";
 import MessageItem from "./MessageItem";
@@ -29,8 +29,10 @@ const Messages: FC<IMessagesProps> = ({ userId, conversationId }) => {
         },
     });
 
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+
     const subscribeToMoreMessages = (conversationId: string) => {
-        subscribeToMore({
+        return subscribeToMore({
             document: MessageOperation.Subscription.messageSent,
             variables: {
                 conversationId,
@@ -54,8 +56,15 @@ const Messages: FC<IMessagesProps> = ({ userId, conversationId }) => {
     };
 
     useEffect(() => {
-        subscribeToMoreMessages(conversationId);
+        const unsubscribe = subscribeToMoreMessages(conversationId);
+
+        return () => unsubscribe();
     }, [conversationId]);
+
+    useEffect(() => {
+        if (!messagesEndRef.current || !data) return;
+        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }, [data, messagesEndRef.current]);
 
     console.log("Message Data: ", data);
     if (error) {

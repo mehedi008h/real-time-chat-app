@@ -62,7 +62,7 @@ const ConversationList: FC<IConversationListProps> = ({
             <Box my={4}>
                 {sortedConversations.map((conversation) => {
                     const participant = conversation.participants.find(
-                        (p) => p.user.id === userId
+                        (p: { user: { id: string } }) => p.user.id === userId
                     );
 
                     return (
@@ -75,6 +75,12 @@ const ConversationList: FC<IConversationListProps> = ({
                                     conversation.id,
                                     participant?.hasSeenLatestMessage
                                 )
+                            }
+                            hasSeenLatestMessage={
+                                participant?.hasSeenLatestMessage
+                            }
+                            isSelected={
+                                conversation.id === router.query.conversationId
                             }
                         />
                     );

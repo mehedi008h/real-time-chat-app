@@ -92,7 +92,7 @@ const Auth: FC<AuthProps> = ({ session, reloadSession }) => {
             <Center width="100%">
                 <Stack align="center" direction="column" gap={3}>
                     <RiChatSmile2Line size={60} color="darkcyan" />
-                    <Text fontSize="3xl" fontWeight="bold">
+                    <Text color="black" fontSize="3xl" fontWeight="bold">
                         {session ? "Create Username" : "Log In"}
                     </Text>
 
@@ -105,8 +105,9 @@ const Auth: FC<AuthProps> = ({ session, reloadSession }) => {
                                 borderColor="blackAlpha.500"
                                 focusBorderColor="blackAlpha.500"
                                 placeholder="Enter your username.."
+                                color="blackAlpha.700"
                                 _placeholder={{
-                                    color: "blackAlpha.500",
+                                    color: "blackAlpha.700",
                                 }}
                                 _hover={{ border: "1px" }}
                                 _focus={{ border: "1px" }}
@@ -142,6 +143,7 @@ const Auth: FC<AuthProps> = ({ session, reloadSession }) => {
                                     bg="blackAlpha.200"
                                     width="300px"
                                     _hover={{ bg: "blackAlpha.100" }}
+                                    color="black"
                                     px={4}
                                     py={2}
                                 >
@@ -154,6 +156,7 @@ const Auth: FC<AuthProps> = ({ session, reloadSession }) => {
                                     bg="blackAlpha.200"
                                     width="300px"
                                     _hover={{ bg: "blackAlpha.100" }}
+                                    color="black"
                                     px={4}
                                     py={2}
                                 >

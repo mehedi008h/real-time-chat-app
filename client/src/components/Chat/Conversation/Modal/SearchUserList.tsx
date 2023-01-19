@@ -37,9 +37,6 @@ const SearchUserList: FC<ISearchUserListProps> = ({
                                 width="100%"
                             >
                                 <Box>
-                                    <Text color="whiteAlpha.700">
-                                        {user?.name}
-                                    </Text>
                                     <Text fontSize={14} color="whiteAlpha.700">
                                         {user?.username}
                                     </Text>

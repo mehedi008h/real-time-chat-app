@@ -7,6 +7,17 @@ const conversationTypeDefs = gql`
         createConversation(participantIds: [String]): CreateConversationResponse
     }
 
+    type Mutation {
+        markConversationAsRead(
+            userId: String!
+            conversationId: String!
+        ): Boolean
+    }
+
+    type Mutation {
+        deleteConversation(conversationId: String!): Boolean
+    }
+
     type CreateConversationResponse {
         conversationId: String
     }
@@ -15,11 +26,8 @@ const conversationTypeDefs = gql`
         conversation: Conversation
     }
 
-    type Message {
+    type ConversationDeletedSubscriptionPayload {
         id: String
-        sender: User
-        body: String
-        createdAt: Date
     }
 
     type Conversation {
@@ -45,6 +53,10 @@ const conversationTypeDefs = gql`
 
     type Subscription {
         conversationUpdated: ConversationUpdatedSubscriptionPayload
+    }
+
+    type Subscription {
+        conversationDeleted: ConversationDeletedSubscriptionPayload
     }
 `;
 
